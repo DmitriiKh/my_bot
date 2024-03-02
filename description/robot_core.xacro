@@ -1,0 +1,185 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot">
+
+    <!-- Define the camera
+    <xacro:macro name="camera_macro" params="prefix">
+        <link name="${prefix}_camera_link">
+            <visual>
+                <geometry>
+                    <box size="0.1 0.1 0.1"/>
+                </geometry>
+                <material name="white">
+                    <color rgba="1 1 1 1"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <box size="0.1 0.1 0.1"/>
+                </geometry>
+            </collision>
+        </link>
+        <joint name="${prefix}_camera_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <parent link="${prefix}_link"/>
+            <child link="${prefix}_camera_link"/>
+        </joint>
+        <sensor name="${prefix}_camera" type="camera">
+            <camera>
+                <horizontal_fov>1.047</horizontal_fov>
+                <image>
+                    <width>640</width>
+                    <height>480</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.01</near>
+                    <far>100</far>
+                </clip>
+            </camera>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <parent link="${prefix}_camera_link"/>
+            <visualize>true</visualize>
+        </sensor>
+    </xacro:macro> -->
+
+    <link name="base_link"/>
+
+    <!-- Define the robot -->
+    <joint name="base_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="chassis"/>
+    </joint>
+
+    <link name="chassis">
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+            <material name="white">
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <!-- <link name="wheel1">
+        <visual>
+            <geometry>
+                <cylinder radius="0.05" length="0.02"/>
+            </geometry>
+            <material name="black">
+                <color rgba="0 0 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.05" length="0.02"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="wheel2" />
+    <link name="wheel3" />
+    <link name="wheel4" />
+
+    <joint name="wheel1_joint" type="continuous">
+        <origin xyz="0.05 0.05 0" rpy="0 0 0"/>
+        <parent link="chassis"/>
+        <child link="wheel1"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+    <joint name="wheel2_joint" type="continuous">
+        <origin xyz="-0.05 0.05 0" rpy="0 0 0"/>
+        <parent link="chassis"/>
+        <child link="wheel2"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+    <joint name="wheel3_joint" type="continuous">
+        <origin xyz="0.05 -0.05 0" rpy="0 0 0"/>
+        <parent link="chassis"/>
+        <child link="wheel3"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+    <joint name="wheel4_joint" type="continuous">
+        <origin xyz="-0.05 -0.05 0" rpy="0 0 0"/>
+        <parent link="chassis"/>
+        <child link="wheel4"/>
+        <axis xyz="0 0 1"/>
+    </joint> -->
+
+    <!-- Add the camera to the robot -->
+    <joint name="camera_joint" type="fixed">
+        <parent link="chassis"/>    
+        <child link="camera_link"/>
+        <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    </joint>
+
+    <link name="camera_link">
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+            <material name="red">
+                <color rgba="1 0 0 1"/>
+            </material>
+        </visual>
+    </link>
+
+    <joint name="camera_optical_joint" type="fixed">
+        <parent link="camera_link"/>
+        <child link="camera_link_optical"/>
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+    
+    <link name="camera_link_optical"></link>
+
+    <!-- Add the gazebo reference -->
+    <gazebo reference="camera_link">
+        <material>Gazebo/Red</material>
+        <sensor name="camera_sensor" type="camera">
+            <camera>
+                <horizontal_fov>1.047</horizontal_fov>
+                <image>
+                    <width>640</width>
+                    <height>480</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.01</near>
+                    <far>10</far>
+                </clip>
+            </camera>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <!-- <parent link="camera_link_optical"/> -->
+            <visualize>true</visualize>
+            <plugin name="camera_plugin" filename="libgazebo_ros_camera.so">
+                <alwaysOn>true</alwaysOn>
+                <updateRate>30.0</updateRate>
+                <cameraName>camera</cameraName>
+                <imageTopicName>image_raw</imageTopicName>
+                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+                <frameName>camera_link_optical</frameName>
+                <hackBaseline>0.07</hackBaseline>
+                <distortionK1>0.0</distortionK1>
+                <distortionK2>0.0</distortionK2>
+                <distortionK3>0.0</distortionK3>
+                <distortionT1>0.0</distortionT1>
+                <distortionT2>0.0</distortionT2>
+                <Cx>320.0</Cx>
+                <Cy>240.0</Cy>
+                <Fx>554.382712</Fx>
+                <Fy>554.382712</Fy>
+                <width>640</width>
+                <height>480</height>
+                <depth>3</depth>
+                <distortionModel>plumb_bob</distortionModel>
+                <!-- <cameraInfoURL>file://$(find my_bot)/description/camera_info/camera.yaml</cameraInfoURL> -->
+            </plugin>
+        </sensor>
+    </gazebo>
+
+</robot>
